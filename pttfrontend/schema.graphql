@@ -1,0 +1,207 @@
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
+
+type FileNode implements Node {
+  """The ID of the object."""
+  id: ID!
+  created: DateTime!
+  edited: DateTime!
+  user: UserType!
+  name: String!
+  path: String!
+  fileVersion(before: String, after: String, first: Int, last: Int): FileVersionNodeConnection!
+}
+
+type FileNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [FileNodeEdge]!
+}
+
+"""A Relay edge containing a `FileNode` and its cursor."""
+type FileNodeEdge {
+  """The item at the end of the edge"""
+  node: FileNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type FileType {
+  id: ID!
+  created: DateTime!
+  edited: DateTime!
+  user: UserType!
+  name: String!
+  path: String!
+  fileVersion(before: String, after: String, first: Int, last: Int): FileVersionNodeConnection!
+}
+
+type FileVersionNode implements Node {
+  created: DateTime!
+  edited: DateTime!
+
+  """The ID of the object."""
+  id: ID!
+  fileInfo: FileNode!
+  file: String!
+  version: Int!
+}
+
+type FileVersionNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [FileVersionNodeEdge]!
+}
+
+"""A Relay edge containing a `FileVersionNode` and its cursor."""
+type FileVersionNodeEdge {
+  """The item at the end of the edge"""
+  node: FileVersionNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type FileVersionType {
+  created: DateTime!
+  edited: DateTime!
+  id: ID!
+  fileInfo: FileNode!
+  file: String!
+  version: Int!
+}
+
+"""
+The `GenericScalar` scalar type represents a generic
+GraphQL scalar value that could be:
+String, Boolean, Int, Float, List or Object.
+"""
+scalar GenericScalar
+
+"""The project root mutation definition"""
+type Mutation {
+  uploadFile(path: String): UploadFile
+
+  """Obtain JSON Web Token mutation"""
+  tokenAuth(input: ObtainJSONWebTokenInput!): ObtainJSONWebTokenPayload
+  verifyToken(input: VerifyInput!): VerifyPayload
+  refreshToken(input: RefreshInput!): RefreshPayload
+  revokeToken(input: RevokeInput!): RevokePayload
+}
+
+"""An object with an ID"""
+interface Node {
+  """The ID of the object."""
+  id: ID!
+}
+
+input ObtainJSONWebTokenInput {
+  clientMutationId: String
+  username: String!
+  password: String!
+}
+
+"""Obtain JSON Web Token mutation"""
+type ObtainJSONWebTokenPayload {
+  token: String
+  clientMutationId: String
+}
+
+"""
+The Relay compliant `PageInfo` type, containing data necessary to paginate this connection.
+"""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: String
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: String
+}
+
+"""The project root query definition"""
+type Query {
+  me: UserType
+  users: [UserType]
+  files: [FileType]
+  filesByUser: [FileType]
+  fileVersions: [FileVersionType]
+  fileVersionsByUser: [FileVersionType]
+}
+
+input RefreshInput {
+  token: String!
+  clientMutationId: String
+}
+
+type RefreshPayload {
+  token: String
+  payload: GenericScalar
+  clientMutationId: String
+}
+
+input RevokeInput {
+  refreshToken: String!
+  clientMutationId: String
+}
+
+type RevokePayload {
+  revoked: Int
+  clientMutationId: String
+}
+
+type UploadFile {
+  result: String
+}
+
+type UserType {
+  id: ID!
+  password: String!
+  lastLogin: DateTime
+
+  """
+  Designates that this user has all permissions without explicitly assigning them.
+  """
+  isSuperuser: Boolean!
+
+  """Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."""
+  username: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+
+  """Designates whether the user can log into this admin site."""
+  isStaff: Boolean!
+
+  """
+  Designates whether this user should be treated as active. Unselect this instead of deleting accounts.
+  """
+  isActive: Boolean!
+  dateJoined: DateTime!
+  fileSet(before: String, after: String, first: Int, last: Int): FileNodeConnection!
+}
+
+input VerifyInput {
+  token: String!
+  clientMutationId: String
+}
+
+type VerifyPayload {
+  payload: GenericScalar
+  clientMutationId: String
+}
+
