@@ -1,8 +1,10 @@
-from .models import File
+from .models import File, FileVersion
 from django.contrib.auth import get_user_model
+from django.db import transaction
+from django.db.models import Max
 from graphene import relay
 from graphene_django import DjangoObjectType
-from graphene_django.filter import DjangoFilterConnectionField
+from graphql_jwt.decorators import login_required
 
 import graphene
 
@@ -10,6 +12,16 @@ import graphene
 class UserType(DjangoObjectType):
     class Meta:
         model = get_user_model()
+
+
+class FileType(DjangoObjectType):
+    class Meta:
+        model = File
+
+
+class FileVersionType(DjangoObjectType):
+    class Meta:
+        model = FileVersion
 
 
 class FileNode(DjangoObjectType):
@@ -20,29 +32,12 @@ class FileNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
 
-class UploadFile(graphene.Mutation):
-    # Relay allows Output objects
-    response = graphene.String()
-
-    # Important!!! Relay not allows Input objects as arguments
-    class Arguments:
-        name = graphene.String(required=True)
-
-    def mutate(self, info):
-        file = info.context.FILE
-
-        name = ''
-        path = ''
-        extension = ''
-
-        file_db = File(
-            name=name,
-            path=path,
-            extension=extension
-        )
-        file_db.save()
-
-        return UploadFile(response="Ok")
+class FileVersionNode(DjangoObjectType):
+    class Meta:
+        model = FileVersion
+        exclude_fields = ()
+        filter_fields = []
+        interfaces = (relay.Node,)
 
 
 class Query(graphene.ObjectType):
@@ -50,6 +45,10 @@ class Query(graphene.ObjectType):
 
     me = graphene.Field(UserType)
     users = graphene.List(UserType)
+    files = graphene.List(FileType)
+    files_by_user = graphene.List(FileType)
+    file_versions = graphene.List(FileVersionType)
+    file_versions_by_user = graphene.List(FileVersionType)
 
     def resolve_me(self, info):
         user = info.context.user
@@ -62,17 +61,54 @@ class Query(graphene.ObjectType):
     def resolve_users(self, info):
         return get_user_model().objects.all()
 
-    relay_file = relay.Node.Field(FileNode)
-    relay_files = DjangoFilterConnectionField(FileNode)
+    def resolve_files(self, info):
+        return File.objects.all()
 
-    test = graphene.String()
+    @login_required
+    def resolve_files_by_user(self, info):
+        return File.objects.filter(user=info.context.user).all()
 
-    def resolve_test(self, info):
-        return "Result test"
+    def resolve_file_versions(self, info):
+        return FileVersion.objects.all()
+
+    @login_required
+    def resolve_file_versions_by_user(self, info):
+        return FileVersion.objects.filter(file_info__user=info.context.user).all()
+
+
+class UploadFile(graphene.Mutation):
+    result = graphene.String()
+
+    class Arguments:
+        path = graphene.String()
+
+    @login_required
+    @transaction.atomic
+    def mutate(self, info, path):
+        files = info.context.FILES
+        uploaded_file = files['fileItem']
+
+        user = get_user_model().objects.get(username=info.context.user.username)
+
+        if File.objects.filter(user=user, name=uploaded_file.name, path=path).exists():
+            file = File.objects.get(user=user, name=uploaded_file.name, path=path)
+            last_file_version = FileVersion.objects.filter(file_info=file).aggregate(Max('version'))
+            version = last_file_version['version__max'] + 1
+        else:
+            file = File(
+                user=user,
+                name=uploaded_file.name,
+                path=path)
+            file.save()
+            version = 1
+
+        file_version = FileVersion(file_info=file, file=uploaded_file, version=version)
+        file_version.save()
+
+        return UploadFile(result="Ok")
 
 
 class Mutation(graphene.ObjectType):
     """GraphQL mutations."""
 
-    # upload_file = UploadFile.Field()
-    pass
+    upload_file = UploadFile.Field()
