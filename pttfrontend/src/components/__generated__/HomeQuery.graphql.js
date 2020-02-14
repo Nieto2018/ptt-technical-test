@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash e072745152c8751884421b88ae0e3a74
+ * @relayHash 5cc71b0c2bb94e8a697219b8a7d0f280
  */
 
 /* eslint-disable */
@@ -9,8 +9,8 @@
 
 /*::
 import type { ConcreteRequest } from 'relay-runtime';
-export type FileListPageQueryVariables = {||};
-export type FileListPageQueryResponse = {|
+export type HomeQueryVariables = {||};
+export type HomeQueryResponse = {|
   +filesByUser: ?$ReadOnlyArray<?{|
     +name: string,
     +path: string,
@@ -23,15 +23,15 @@ export type FileListPageQueryResponse = {|
     |},
   |}>
 |};
-export type FileListPageQuery = {|
-  variables: FileListPageQueryVariables,
-  response: FileListPageQueryResponse,
+export type HomeQuery = {|
+  variables: HomeQueryVariables,
+  response: HomeQueryResponse,
 |};
 */
 
 
 /*
-query FileListPageQuery {
+query HomeQuery {
   filesByUser {
     name
     path
@@ -81,7 +81,7 @@ return {
   "kind": "Request",
   "fragment": {
     "kind": "Fragment",
-    "name": "FileListPageQuery",
+    "name": "HomeQuery",
     "type": "Query",
     "metadata": null,
     "argumentDefinitions": [],
@@ -137,7 +137,7 @@ return {
   },
   "operation": {
     "kind": "Operation",
-    "name": "FileListPageQuery",
+    "name": "HomeQuery",
     "argumentDefinitions": [],
     "selections": [
       {
@@ -193,13 +193,13 @@ return {
   },
   "params": {
     "operationKind": "query",
-    "name": "FileListPageQuery",
+    "name": "HomeQuery",
     "id": null,
-    "text": "query FileListPageQuery {\n  filesByUser {\n    name\n    path\n    fileVersion {\n      edges {\n        node {\n          version\n          id\n        }\n      }\n    }\n    id\n  }\n}\n",
+    "text": "query HomeQuery {\n  filesByUser {\n    name\n    path\n    fileVersion {\n      edges {\n        node {\n          version\n          id\n        }\n      }\n    }\n    id\n  }\n}\n",
     "metadata": {}
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '60e306ebff891ef55cf9a1fa2588a3e6';
+(node/*: any*/).hash = '406bf9e196ec08e9e17bbb74409595fe';
 module.exports = node;

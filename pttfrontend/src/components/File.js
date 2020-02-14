@@ -1,25 +1,39 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { useHistory } from "react-router-dom";
 
 
 function File(props) {
 
+    let history = useHistory();
+
+    let versionList = []
+    props.file.fileVersion.edges.map(({ node }) => (
+        versionList.push(node.version)
+    ))
+
+    const [version, setVersion] = useState(Math.max.apply(null, versionList))
+    const fullPath = '/store/' + props.file.path + props.file.name
+
+    function handleFetchFile() {
+        history.push(fullPath + '?revision=' + version)
+    }
+
     return (
-        <div className='flex mt2 items-start'>
-            {/* <div className='flex items-center'>
-                <span className='gray'>{this.props.index + 1}.</span>
-                {userId && <div className='ml1 gray fl1' onClick={() => this._voteForLink()}>▲</div>}
-            </div> */}
+        <div className='flex mt3 items-start'>
             <div className='ml1'>
-                <div>{props.file.path}/{props.file.name}
-                <select>
-                    {props.file.fileVersion.edges.map(({ node }) => (
-                        <option value={node.version}>{node.version}</option>
-                        //  <p>{node.version}</p>
-                    ))}
-                </select>
+                <div>
+                    {fullPath}
                 </div>
+                <div>Revision: 
+                    <select value={version} onChange={(e) => setVersion(e.target.value)} >
+                        {versionList.map((v) => (
+                            <option value={v}>{v}</option>
+                        ))}
+                    </select>
+                </div>
+                <div className='button' onClick={() => handleFetchFile()}>Fetch file</div>
             </div>
-        </div >
+        </div>
     )
 
 }
