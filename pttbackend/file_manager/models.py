@@ -28,13 +28,13 @@ class File(DateTimeModel):
 
 
 def user_directory_path(instance, filename):
-    path = instance.file_info.path if instance.file_info.path else 'default'
-    return '/store/{0}/{1}/{2}'.format(path, instance.version, filename)
+    return 'store/{0}/{1}/{2}'.format(instance.file_info.path, instance.version, filename)
 
 
 class FileVersion(DateTimeModel):
     file_info = models.ForeignKey(File, on_delete=models.CASCADE, related_name="file_version")
     file = models.FileField(upload_to=user_directory_path)
+    full_path = models.CharField(max_length=255)
     version = models.PositiveIntegerField(default=0)
     UniqueConstraint(fields=['file_info', 'version'], name='unique_file_version')
 

@@ -49,6 +49,7 @@ class Query(graphene.ObjectType):
     files_by_user = graphene.List(FileType)
     file_versions = graphene.List(FileVersionType)
     file_versions_by_user = graphene.List(FileVersionType)
+    # download_file = graphene.String(FileVersionType)
 
     def resolve_me(self, info):
         user = info.context.user
@@ -75,6 +76,32 @@ class Query(graphene.ObjectType):
     def resolve_file_versions_by_user(self, info):
         return FileVersion.objects.filter(file_info__user=info.context.user).all()
 
+    # @login_required
+    # def resolver_download_file(self, info, file_path, version):
+    #
+    #     user = get_user_model().objects.get(username=info.context.user.username)
+    #
+    #     files = info.context.FILES
+    #     files.put()
+    #
+    #
+    #     if FileVersion.objects.filter(file_info__user=user, name=uploaded_file.name, path=path).exists():
+    #         file = File.objects.get(user=user, name=uploaded_file.name, path=path)
+    #         last_file_version = FileVersion.objects.filter(file_info=file).aggregate(Max('version'))
+    #         version = last_file_version['version__max'] + 1
+    #     else:
+    #         file = File(
+    #             user=user,
+    #             name=uploaded_file.name,
+    #             path=path)
+    #         file.save()
+    #         version = 0
+    #
+    #     file_version = FileVersion(file_info=file, file=uploaded_file, version=version)
+    #     file_version.save()
+    #
+    #     return DownloadFile(result="OK")
+
 
 class UploadFile(graphene.Mutation):
     result = graphene.String()
@@ -90,8 +117,10 @@ class UploadFile(graphene.Mutation):
 
         user = get_user_model().objects.get(username=info.context.user.username)
 
-        if File.objects.filter(user=user, name=uploaded_file.name, path=path).exists():
-            file = File.objects.get(user=user, name=uploaded_file.name, path=path)
+        file_path = path if path else uploaded_file.name.replace(".", "")
+
+        if File.objects.filter(user=user, name=uploaded_file.name, path=file_path).exists():
+            file = File.objects.get(user=user, name=uploaded_file.name, path=file_path)
             last_file_version = FileVersion.objects.filter(file_info=file).aggregate(Max('version'))
             version = last_file_version['version__max'] + 1
         else:
@@ -100,12 +129,16 @@ class UploadFile(graphene.Mutation):
                 name=uploaded_file.name,
                 path=path)
             file.save()
-            version = 1
+            version = 0
 
-        file_version = FileVersion(file_info=file, file=uploaded_file, version=version)
+        file_version = FileVersion(
+            file_info=file,
+            file=uploaded_file,
+            full_path='/store/{0}/{1}/{2}'.format(file.path, version, file.name),
+            version=version)
         file_version.save()
 
-        return UploadFile(result="Ok")
+        return UploadFile(result="OK")
 
 
 class Mutation(graphene.ObjectType):
