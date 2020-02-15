@@ -1,6 +1,6 @@
 /**
  * @flow
- * @relayHash 5cc71b0c2bb94e8a697219b8a7d0f280
+ * @relayHash 9b4adff2721ba5f075568cf9312b6aef
  */
 
 /* eslint-disable */
@@ -14,10 +14,10 @@ export type HomeQueryResponse = {|
   +filesByUser: ?$ReadOnlyArray<?{|
     +name: string,
     +path: string,
-    +fileVersion: {|
+    +fileRevision: {|
       +edges: $ReadOnlyArray<?{|
         +node: ?{|
-          +version: number
+          +revision: number
         |}
       |}>
     |},
@@ -35,10 +35,10 @@ query HomeQuery {
   filesByUser {
     name
     path
-    fileVersion {
+    fileRevision {
       edges {
         node {
-          version
+          revision
           id
         }
       }
@@ -66,7 +66,7 @@ v1 = {
 v2 = {
   "kind": "ScalarField",
   "alias": null,
-  "name": "version",
+  "name": "revision",
   "args": null,
   "storageKey": null
 },
@@ -100,10 +100,10 @@ return {
           {
             "kind": "LinkedField",
             "alias": null,
-            "name": "fileVersion",
+            "name": "fileRevision",
             "storageKey": null,
             "args": null,
-            "concreteType": "FileVersionNodeConnection",
+            "concreteType": "FileRevisionNodeConnection",
             "plural": false,
             "selections": [
               {
@@ -112,7 +112,7 @@ return {
                 "name": "edges",
                 "storageKey": null,
                 "args": null,
-                "concreteType": "FileVersionNodeEdge",
+                "concreteType": "FileRevisionNodeEdge",
                 "plural": true,
                 "selections": [
                   {
@@ -121,7 +121,7 @@ return {
                     "name": "node",
                     "storageKey": null,
                     "args": null,
-                    "concreteType": "FileVersionNode",
+                    "concreteType": "FileRevisionNode",
                     "plural": false,
                     "selections": [
                       (v2/*: any*/)
@@ -154,10 +154,10 @@ return {
           {
             "kind": "LinkedField",
             "alias": null,
-            "name": "fileVersion",
+            "name": "fileRevision",
             "storageKey": null,
             "args": null,
-            "concreteType": "FileVersionNodeConnection",
+            "concreteType": "FileRevisionNodeConnection",
             "plural": false,
             "selections": [
               {
@@ -166,7 +166,7 @@ return {
                 "name": "edges",
                 "storageKey": null,
                 "args": null,
-                "concreteType": "FileVersionNodeEdge",
+                "concreteType": "FileRevisionNodeEdge",
                 "plural": true,
                 "selections": [
                   {
@@ -175,7 +175,7 @@ return {
                     "name": "node",
                     "storageKey": null,
                     "args": null,
-                    "concreteType": "FileVersionNode",
+                    "concreteType": "FileRevisionNode",
                     "plural": false,
                     "selections": [
                       (v2/*: any*/),
@@ -195,11 +195,11 @@ return {
     "operationKind": "query",
     "name": "HomeQuery",
     "id": null,
-    "text": "query HomeQuery {\n  filesByUser {\n    name\n    path\n    fileVersion {\n      edges {\n        node {\n          version\n          id\n        }\n      }\n    }\n    id\n  }\n}\n",
+    "text": "query HomeQuery {\n  filesByUser {\n    name\n    path\n    fileRevision {\n      edges {\n        node {\n          revision\n          id\n        }\n      }\n    }\n    id\n  }\n}\n",
     "metadata": {}
   }
 };
 })();
 // prettier-ignore
-(node/*: any*/).hash = '406bf9e196ec08e9e17bbb74409595fe';
+(node/*: any*/).hash = '383a86b5e36a32f7e0d63a2304ea8794';
 module.exports = node;

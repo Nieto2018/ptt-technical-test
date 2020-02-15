@@ -6,16 +6,16 @@ function File(props) {
 
     let history = useHistory();
 
-    let versionList = []
-    props.file.fileVersion.edges.map(({ node }) => (
-        versionList.push(node.version)
+    let revisionList = []
+    props.file.fileRevision.edges.map(({ node }) => (
+        revisionList.push(node.revision)
     ))
 
-    const [version, setVersion] = useState(Math.max.apply(null, versionList))
-    const fullPath = '/store/' + props.file.path + props.file.name
+    const [revision, setRevision] = useState(Math.max.apply(null, revisionList))
+    const fullPath = props.file.path + '/' + props.file.name
 
     function handleFetchFile() {
-        history.push(fullPath + '?revision=' + version)
+        history.push(fullPath + '?revision=' + revision)
     }
 
     return (
@@ -24,9 +24,9 @@ function File(props) {
                 <div>
                     {fullPath}
                 </div>
-                <div>Revision: 
-                    <select value={version} onChange={(e) => setVersion(e.target.value)} >
-                        {versionList.map((v) => (
+                <div>Revision:
+                    <select value={revision} onChange={(e) => setRevision(e.target.value)} >
+                        {revisionList.map((v) => (
                             <option value={v}>{v}</option>
                         ))}
                     </select>

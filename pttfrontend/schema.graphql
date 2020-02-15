@@ -13,7 +13,7 @@ type FileNode implements Node {
   user: UserType!
   name: String!
   path: String!
-  fileVersion(before: String, after: String, first: Int, last: Int): FileVersionNodeConnection!
+  fileRevision(before: String, after: String, first: Int, last: Int): FileRevisionNodeConnection!
 }
 
 type FileNodeConnection {
@@ -33,17 +33,7 @@ type FileNodeEdge {
   cursor: String!
 }
 
-type FileType {
-  id: ID!
-  created: DateTime!
-  edited: DateTime!
-  user: UserType!
-  name: String!
-  path: String!
-  fileVersion(before: String, after: String, first: Int, last: Int): FileVersionNodeConnection!
-}
-
-type FileVersionNode implements Node {
+type FileRevisionNode implements Node {
   created: DateTime!
   edited: DateTime!
 
@@ -51,33 +41,45 @@ type FileVersionNode implements Node {
   id: ID!
   fileInfo: FileNode!
   file: String!
-  version: Int!
+  fullPath: String!
+  revision: Int!
 }
 
-type FileVersionNodeConnection {
+type FileRevisionNodeConnection {
   """Pagination data for this connection."""
   pageInfo: PageInfo!
 
   """Contains the nodes in this connection."""
-  edges: [FileVersionNodeEdge]!
+  edges: [FileRevisionNodeEdge]!
 }
 
-"""A Relay edge containing a `FileVersionNode` and its cursor."""
-type FileVersionNodeEdge {
+"""A Relay edge containing a `FileRevisionNode` and its cursor."""
+type FileRevisionNodeEdge {
   """The item at the end of the edge"""
-  node: FileVersionNode
+  node: FileRevisionNode
 
   """A cursor for use in pagination"""
   cursor: String!
 }
 
-type FileVersionType {
+type FileRevisionType {
   created: DateTime!
   edited: DateTime!
   id: ID!
   fileInfo: FileNode!
   file: String!
-  version: Int!
+  fullPath: String!
+  revision: Int!
+}
+
+type FileType {
+  id: ID!
+  created: DateTime!
+  edited: DateTime!
+  user: UserType!
+  name: String!
+  path: String!
+  fileRevision(before: String, after: String, first: Int, last: Int): FileRevisionNodeConnection!
 }
 
 """
@@ -139,8 +141,10 @@ type Query {
   users: [UserType]
   files: [FileType]
   filesByUser: [FileType]
-  fileVersions: [FileVersionType]
-  fileVersionsByUser: [FileVersionType]
+  fileRevisions: [FileRevisionType]
+  fileRevisionsByUser: [FileRevisionType]
+  downloadFile(fullPath: String!, revision: String): String
+  lastRevisionByFile(fullPath: String!): Int
 }
 
 input RefreshInput {

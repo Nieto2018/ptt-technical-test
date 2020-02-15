@@ -7,7 +7,7 @@ function FileListPage(props) {
     return (
         <div>
             <h4>File list</h4>
-            {props.fileList.length > 0 ?
+            {props.fileList && props.fileList.length > 0 ?
                 <FileList files={props.fileList} />
             :
                 <p>File list empty</p>

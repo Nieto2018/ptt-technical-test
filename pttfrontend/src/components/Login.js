@@ -11,19 +11,16 @@ function Login() {
     let history = useHistory();
     let location = useLocation();
 
-    // [login, setLogin] = useState(true)
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
     async function _confirm () {
-        // if (login) {
         SigninUserMutation(username, password, (token) => {
             _saveUserData(username, token)
 
             let { from } = location.state || { from: { pathname: "/" } };
             history.replace(from);
         })
-        // }
     }
 
     async function _saveUserData(username, token) {
@@ -50,6 +47,11 @@ function Login() {
             </div>
             <div className='flex mt3'>
                 <div className='pointer mr2 button' onClick={() => _confirm()}>Login</div>
+            </div>
+            <div className='flex flex-column'>
+                <h5>Test users</h5>
+                <p>testuser1/tupasswd1</p>
+                <p>testuser2/tupasswd2</p>
             </div>
         </div>
     )

@@ -1,5 +1,4 @@
 import React from 'react'
-// import React, { useState } from 'react'
 import FileUploader from './FileUploader'
 import FileListPage from './FileListPage'
 import { toast } from 'react-toastify';
@@ -11,10 +10,10 @@ const query = graphql`
         filesByUser{
             name
             path
-            fileVersion{
+            fileRevision{
                 edges{
                     node{
-                        version
+                        revision
                     }
                 }
             }

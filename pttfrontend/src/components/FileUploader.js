@@ -3,14 +3,9 @@ import { GC_AUTH_TOKEN } from '../constants'
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const query = `mutation UploadFile{
-            uploadFile(path: "documents") {
-            result
-            }
-        }`
 
 function FileUploader(props) {
-    const [path, setPath] = useState()
+    const [path, setPath] = useState('')
     const [selectedFile, setSelectedFile] = useState(null)
 
     async function _confirm() {
@@ -25,6 +20,13 @@ function FileUploader(props) {
                 draggable: true
             });
         } else {
+            
+            const query = `mutation UploadFile{
+                uploadFile(path: "${path}") {
+                    result
+                }
+            }`
+
             const data = new FormData()
             data.append('fileItem', selectedFile)
             data.append('query', query)
@@ -88,7 +90,7 @@ function FileUploader(props) {
             <div className='flex flex-column mt3'>
                 <input className="mb2" type="file" id="myfile" onChange={onChangeFileHandler} />
                 <input className="mb2" type="text" value={path} placeholder="Insert an URL (default)" onChange={(e) => setPath(e.target.value)} />
-                <p>URL: /store/{path ? path : 'default'}/{selectedFile ? selectedFile.name : 'demo_name.ext'}</p>
+                <p>URL: /{path ? path : 'default'}/{selectedFile ? selectedFile.name : 'demo_name.ext'}</p>
             </div>
             <div className='button' onClick={() => _confirm()} >Upload file</div>
         </div>
