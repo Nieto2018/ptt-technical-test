@@ -1,4 +1,5 @@
-from .models import File, FileVersion
+from .models import File, FileRevision
+from base64 import b64encode
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Max
@@ -19,9 +20,9 @@ class FileType(DjangoObjectType):
         model = File
 
 
-class FileVersionType(DjangoObjectType):
+class FileRevisionType(DjangoObjectType):
     class Meta:
-        model = FileVersion
+        model = FileRevision
 
 
 class FileNode(DjangoObjectType):
@@ -32,9 +33,9 @@ class FileNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
 
-class FileVersionNode(DjangoObjectType):
+class FileRevisionNode(DjangoObjectType):
     class Meta:
-        model = FileVersion
+        model = FileRevision
         exclude_fields = ()
         filter_fields = []
         interfaces = (relay.Node,)
@@ -44,12 +45,10 @@ class Query(graphene.ObjectType):
     """Root GraphQL query."""
 
     me = graphene.Field(UserType)
-    users = graphene.List(UserType)
-    files = graphene.List(FileType)
     files_by_user = graphene.List(FileType)
-    file_versions = graphene.List(FileVersionType)
-    file_versions_by_user = graphene.List(FileVersionType)
-    # download_file = graphene.String(FileVersionType)
+    file_revisions_by_user = graphene.List(FileRevisionType)
+    download_file = graphene.String(full_path=graphene.String(required=True), revision=graphene.String())
+    last_revision_by_file = graphene.Int(full_path=graphene.String(required=True))
 
     def resolve_me(self, info):
         user = info.context.user
@@ -59,48 +58,49 @@ class Query(graphene.ObjectType):
 
         return user
 
-    def resolve_users(self, info):
-        return get_user_model().objects.all()
-
-    def resolve_files(self, info):
-        return File.objects.all()
-
     @login_required
     def resolve_files_by_user(self, info):
         return File.objects.filter(user=info.context.user).all()
 
-    def resolve_file_versions(self, info):
-        return FileVersion.objects.all()
+    @login_required
+    def resolve_file_revisions_by_user(self, info):
+        return FileRevision.objects.filter(file_info__user=info.context.user).all()
 
     @login_required
-    def resolve_file_versions_by_user(self, info):
-        return FileVersion.objects.filter(file_info__user=info.context.user).all()
+    def resolve_download_file(self, info, full_path, revision):
 
-    # @login_required
-    # def resolver_download_file(self, info, file_path, version):
-    #
-    #     user = get_user_model().objects.get(username=info.context.user.username)
-    #
-    #     files = info.context.FILES
-    #     files.put()
-    #
-    #
-    #     if FileVersion.objects.filter(file_info__user=user, name=uploaded_file.name, path=path).exists():
-    #         file = File.objects.get(user=user, name=uploaded_file.name, path=path)
-    #         last_file_version = FileVersion.objects.filter(file_info=file).aggregate(Max('version'))
-    #         version = last_file_version['version__max'] + 1
-    #     else:
-    #         file = File(
-    #             user=user,
-    #             name=uploaded_file.name,
-    #             path=path)
-    #         file.save()
-    #         version = 0
-    #
-    #     file_version = FileVersion(file_info=file, file=uploaded_file, version=version)
-    #     file_version.save()
-    #
-    #     return DownloadFile(result="OK")
+        user = get_user_model().objects.get(username=info.context.user.username)
+
+        path = ''
+        if len(full_path.rsplit('/', 1)) > 1:
+            [path, filename] = str(full_path).rsplit('/', 1)
+        else:
+            filename = full_path
+
+        file_revision = FileRevision.objects.get(file_info__user=user,
+                                                 file_info__name=filename,
+                                                 file_info__path=path,
+                                                 revision=revision)
+
+        file_data = file_revision.file.read()
+
+        return b64encode(file_data)
+
+    @login_required
+    def resolve_last_revision_by_file(self, info, full_path):
+        user = get_user_model().objects.get(username=info.context.user.username)
+
+        path = ''
+        if len(full_path.rsplit('/', 1)) > 1:
+            [path, filename] = str(full_path).rsplit('/', 1)
+        else:
+            filename = full_path
+
+        file_revision = FileRevision.objects.filter(file_info__user=user,
+                                                    file_info__name=filename,
+                                                    file_info__path=path).aggregate(Max('revision'))
+
+        return file_revision['revision__max']
 
 
 class UploadFile(graphene.Mutation):
@@ -117,26 +117,27 @@ class UploadFile(graphene.Mutation):
 
         user = get_user_model().objects.get(username=info.context.user.username)
 
-        file_path = path if path else uploaded_file.name.replace(".", "")
+        file_path = path if path else 'default'
+        file_path = '/' + file_path if not file_path.startswith('/') else file_path
 
         if File.objects.filter(user=user, name=uploaded_file.name, path=file_path).exists():
             file = File.objects.get(user=user, name=uploaded_file.name, path=file_path)
-            last_file_version = FileVersion.objects.filter(file_info=file).aggregate(Max('version'))
-            version = last_file_version['version__max'] + 1
+            last_file_revision = FileRevision.objects.filter(file_info=file).aggregate(Max('revision'))
+            revision = last_file_revision['revision__max'] + 1
         else:
             file = File(
                 user=user,
                 name=uploaded_file.name,
-                path=path)
+                path=file_path)
             file.save()
-            version = 0
+            revision = 0
 
-        file_version = FileVersion(
+        file_revision = FileRevision(
             file_info=file,
             file=uploaded_file,
-            full_path='/store/{0}/{1}/{2}'.format(file.path, version, file.name),
-            version=version)
-        file_version.save()
+            full_path='store{0}/{1}/{2}'.format(file.path, revision, file.name),
+            revision=revision)
+        file_revision.save()
 
         return UploadFile(result="OK")
 

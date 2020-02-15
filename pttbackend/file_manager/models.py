@@ -21,25 +21,26 @@ class File(DateTimeModel):
     path = models.CharField(max_length=255)
 
     def __unicode__(self):
-        return '{} - {}'.format(self.name, self.path)
+        return '{} - {}'.format(self.path, self.name)
 
     def __str__(self):
-        return '{} - {}'.format(self.name, self.path)
+        return '{} - {}'.format(self.path, self.name)
 
 
 def user_directory_path(instance, filename):
-    return 'store/{0}/{1}/{2}'.format(instance.file_info.path, instance.version, filename)
+    path = instance.file_info.path[1:] if instance.file_info.path.startswith('/') else instance.file_info.path
+    return 'store/{0}/{1}/{2}'.format(path, instance.revision, filename)
 
 
-class FileVersion(DateTimeModel):
-    file_info = models.ForeignKey(File, on_delete=models.CASCADE, related_name="file_version")
+class FileRevision(DateTimeModel):
+    file_info = models.ForeignKey(File, on_delete=models.CASCADE, related_name="file_revision")
     file = models.FileField(upload_to=user_directory_path)
     full_path = models.CharField(max_length=255)
-    version = models.PositiveIntegerField(default=0)
-    UniqueConstraint(fields=['file_info', 'version'], name='unique_file_version')
+    revision = models.PositiveIntegerField(default=0)
+    UniqueConstraint(fields=['file_info', 'revision'], name='unique_file_revision')
 
     def __unicode__(self):
-        return '{} - {}'.format(self.file_info.name, self.version)
+        return '{} - {}'.format(self.full_path, self.revision)
 
     def __str__(self):
-        return '{} - {}'.format(self.file_info.name, self.version)
+        return '{} - {}'.format(self.full_path, self.revision)
