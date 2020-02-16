@@ -2,3 +2,4 @@ django==2.2.10
 graphene-django==2.8.1
 django-cors-headers==3.2.1
 django-graphql-jwt==0.3.0
+gql==0.3.0

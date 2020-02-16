@@ -60,3 +60,5 @@ To deploy the frontend server, you should move into pttfrontend folder and run t
 1) Only if dependencies aren't installed, run "yarn" to install them.
 2) "yarn start" to run the frontend server, it would be doployed in the following URL: http://localhost:3000
 
+
+Insomnia_ptt.json is a file with Graphql queries and mutations to test in the app Insomnia Rest

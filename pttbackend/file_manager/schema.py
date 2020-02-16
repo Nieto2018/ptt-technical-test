@@ -50,6 +50,11 @@ class Query(graphene.ObjectType):
     download_file = graphene.String(full_path=graphene.String(required=True), revision=graphene.String())
     last_revision_by_file = graphene.Int(full_path=graphene.String(required=True))
 
+    test = graphene.String()
+
+    def resolve_test(self, info):
+        return "test_result"
+
     def resolve_me(self, info):
         user = info.context.user
         if user.is_anonymous:
