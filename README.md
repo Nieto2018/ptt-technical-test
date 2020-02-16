@@ -38,3 +38,25 @@ Please return your solution within three days of receipt of  the test. If this 
 
 The solution can either be delivered through a private, shared Git repository, or via email as a Zip file.
 In the case of an emailed Zip, zip the project folder and send it to marieclaire.collins@propylon.com. Should your email client reject the ZIP for containing source code, please encrypt the ZIP with the password "propylon". This should bypass any checks by the mail server
+
+
+### Deployment
+Unzip the file propylo-technical-test.zip which contains two folders: pttbackend and pttfrontend.
+
+The project was done and tested with Python-3.7, but could be compatible with other versions of Python-3. The pttbackend folder contains a folder named "venv37" which is a virtual environment of Python-3.7 with all of the dependencies and the pttfrontend folder contains the node-modules folder with all of the dependencies.
+
+#### To deploy the backend
+To deploy the backend server, you should move into pttbackend folder and run the following commands in a terminal: 
+1) "source venv37/bin/active" to activate the virtual environment
+2) Only if dependencies aren't installed, run "pip install -r requirements.txt" to install them.
+3) "python manager.py runserver" to run the backend server, it would be doployed in the following URL: http://localhost:8000
+
+URLs:
+http://localhost:8000/admin/ -> Django administration
+http://localhost:8000/graphql/ -> Graphiql console, GraphiQL is an in-browser tool for writing, validating, and testing GraphQL queries.
+
+#### To deploy the frontend
+To deploy the frontend server, you should move into pttfrontend folder and run the following commands in a terminal:
+1) Only if dependencies aren't installed, run "yarn" to install them.
+2) "yarn start" to run the frontend server, it would be doployed in the following URL: http://localhost:3000
+
