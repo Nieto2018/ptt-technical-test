@@ -1,4 +1,4 @@
-# technical-test
+# ptt-technical-test
 
 ## Full Stack Engineer Assessment
 
