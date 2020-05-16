@@ -1,4 +1,4 @@
-# propylo-technical-test
+# technical-test
 
 ## Full Stack Engineer Assessment
 
@@ -32,12 +32,7 @@ The user can now retrieve the latest version of the file by accessing the docume
 
 ### Timeframe
 
-Please return your solution within three days of receipt of  the test. If this timeline poses any issues, please reach out to marieclaire.collins@propylon.com to discuss.
-
-### Delivery
-
-The solution can either be delivered through a private, shared Git repository, or via email as a Zip file.
-In the case of an emailed Zip, zip the project folder and send it to marieclaire.collins@propylon.com. Should your email client reject the ZIP for containing source code, please encrypt the ZIP with the password "propylon". This should bypass any checks by the mail server
+Please return your solution within three days of receipt of  the test.
 
 
 ### Deployment
